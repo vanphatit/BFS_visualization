@@ -15,9 +15,33 @@ namespace BFS_visualization
         public Form1()
         {
             InitializeComponent();
+
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        void DrawTree(string order)
+        {
+            if(order == "2")
+            {
+                pnlGraph1.Visible = false;
+            }
+            else
+            {
+                pnlGraph1.Visible=true;
+            }
+        }
+
+        private void btnDrawSpaningTree_Click(object sender, EventArgs e)
+        {
+            string root = cbStartNode.SelectedValue.ToString();
+        }
+
+        private void cbMatrixOrder_SelectedValueChanged(object sender, EventArgs e)
+        {
+            DrawTree(cbMatrixOrder.SelectedIndex.ToString());
+            
+        }
+
+        private void btnImportMatrix_Click(object sender, EventArgs e)
         {
 
         }
