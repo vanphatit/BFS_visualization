@@ -243,6 +243,7 @@
             this.cbStartNode.Name = "cbStartNode";
             this.cbStartNode.Size = new System.Drawing.Size(181, 34);
             this.cbStartNode.TabIndex = 7;
+            this.cbStartNode.SelectedValueChanged += new System.EventHandler(this.cbStartNode_SelectedValueChanged);
             // 
             // label3
             // 

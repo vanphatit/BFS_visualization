@@ -14,31 +14,126 @@ namespace BFS_visualization
     {
         List<Button> buttons = new List<Button>();
         public List<List<Point>> listpoints = new List<List<Point>>();
-       
+        public List<Point> points;
+        bool isChanged = false;
+        int root;
+        int[,] A = new int[10, 10] {
+                        { 0, 1, 0, 1, 0, 0, 0, 0, 0, 0 },
+                        { 1, 0, 1, 0, 1, 1, 0, 0, 0, 0 },
+                        { 0, 1, 0, 0, 0, 0, 1, 0, 0, 0 },
+                        { 1, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
+                        { 0, 1, 0, 1, 0, 0, 0, 0, 0, 1 },
+                        { 0, 1, 0, 0, 0, 0, 1, 0, 0, 1 },
+                        { 0, 0, 1, 0, 0, 1, 0, 1, 0, 0 },
+                        { 0, 0, 0, 0, 0, 0, 1, 0, 1, 0 },
+                        { 0, 0, 0, 0, 0, 0, 0, 1, 0, 1 },
+                        { 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 }
+                        };
+
         public Form1()
         {
             InitializeComponent();
             initializePoints();
+            if(!isChanged)
+                points = listpoints[0];
         }
 
-        void DrawTree(string order)
+        // BFS 
+        public int[] chuaXet = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+        void InitQ(ref Queue<int> Q)
         {
-            int index = Int32.Parse(order);
-            int[,] A = new int[10, 10] {
-                                    { 0, 1, 0, 1, 0, 0, 0, 0, 0, 0 },
-                                    { 1, 0, 1, 0, 1, 1, 0, 0, 0, 0 },
-                                    { 0, 1, 0, 0, 0, 0, 1, 0, 0, 0 },
-                                    { 1, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
-                                    { 0, 1, 0, 1, 0, 0, 0, 0, 0, 1 },
-                                    { 0, 1, 0, 0, 0, 0, 1, 0, 0, 1 },
-                                    { 0, 0, 1, 0, 0, 1, 0, 1, 0, 0 },
-                                    { 0, 0, 0, 0, 0, 0, 1, 0, 1, 0 },
-                                    { 0, 0, 0, 0, 0, 0, 0, 1, 0, 1 },
-                                    { 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 }
-            };
+            Q.FL = null;
+            Q.LL = null;
+        }
 
-            List<Point> points = listpoints[index];
+        public int pushQ(ref Queue<int> Q, int x)
+        {
+            Node<int> p = new Node<int>(x);
+            if (p == null) return 0;
+            if (Q.FL == null)
+            {
+                p.value = x;
+                p.pointer = Q.FL;
+                Q.FL = p;
+                Q.LL = p;
+            }
+            else
+            {
+                p.value = x;
+                p.pointer = null;
+                Q.LL.pointer = p;
+                Q.LL = p;
+            }
+            return 1;
+        }
 
+        public void RemoveNode(Queue<int> Q)
+        {
+            if (Q.FL != null)
+            {
+                Node<int> removedNode = Q.FL;
+                Q.FL = removedNode.pointer;
+
+                if (Q.FL == null)
+                {
+                    Q.LL = null;
+                }
+            }
+        }
+
+        public int popQ(ref Queue<int> Q, out int x)
+        {
+            Node<int> p;
+            p = Q.FL;
+            if (p != null)
+            {
+                x = p.value;
+                Q.FL = p.pointer;
+                if (Q.FL == null) Q.LL = null;
+
+                return 1;
+            }
+            x = 0;
+            return 0;
+        }
+
+        public void TreeBFS(int r)
+        {
+            Graphics gra = this.pnlGraph1.CreateGraphics();
+            Pen pen = new Pen(Color.Red, 3);
+            for (int i = 0; i < 10; i++)
+                for (int j = 0; j < 10; j++)
+                {
+                    if (A[i, j] == 1)
+                    {
+                        gra.DrawLine(pen, new Point(points[i].X + 30 / 2, points[i].Y + 30 / 2),
+                                            new Point(points[j].X + 30 / 2, points[j].Y + 30 / 2));
+                    }
+                }
+            Queue<int> Q = new Queue<int>();
+            int v;
+            InitQ(ref Q);
+            pushQ(ref Q, r);
+            chuaXet[r] = 0;
+            while (Q.FL != null)
+            {
+                popQ(ref Q, out v);
+                for (int i = 0; i < 10; i++)
+                    if (A[i, v] == 1)
+                        if (chuaXet[i] == 1)
+                        {
+                            pushQ(ref Q, i);
+                            chuaXet[i] = 0;
+                            Pen pen10 = new Pen(Color.Yellow, 3);
+                            gra.DrawLine(pen10, new Point(points[v].X + 30 / 2, points[v].Y + 30 / 2),
+                                            new Point(points[i].X + 30 / 2, points[i].Y + 30 / 2));
+                        }
+            }
+        }
+        // BFS
+
+        void DrawTree()
+        {
             pnlGraph1.Controls.Clear();
             pnlGraph1.Refresh();
             Graphics gra = this.pnlGraph1.CreateGraphics();
@@ -64,19 +159,31 @@ namespace BFS_visualization
                 }
         }
 
+        private void cbStartNode_SelectedValueChanged(object sender, EventArgs e)
+        {
+            root = Int32.Parse(cbStartNode.SelectedItem.ToString());
+        }
+
         private void btnDrawSpaningTree_Click(object sender, EventArgs e)
         {
-            string root = cbStartNode.SelectedValue.ToString();
+            for (int i = 0; i < 10; i++)
+            {
+                chuaXet[i] = 1;
+            }
+            TreeBFS(root);
         }
 
         private void cbMatrixOrder_SelectedValueChanged(object sender, EventArgs e)
         {
-            DrawTree(cbMatrixOrder.SelectedIndex.ToString());
+            isChanged = true;
+            int order = Int32.Parse(cbMatrixOrder.SelectedItem.ToString());
+            points = listpoints[order];
+            DrawTree();
         }
 
         private void btnImportMatrix_Click(object sender, EventArgs e)
         {
-            DrawTree("0");
+            DrawTree();
         }
 
         void initializePoints()
