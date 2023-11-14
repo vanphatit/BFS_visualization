@@ -13,7 +13,7 @@ namespace BFS_visualization
     public partial class Form1 : Form
     {
         List<Button> buttons = new List<Button>();
-        public List<Point> points = new List<Point>();
+        public List<List<Point>> listpoints = new List<List<Point>>();
        
         public Form1()
         {
@@ -23,6 +23,7 @@ namespace BFS_visualization
 
         void DrawTree(string order)
         {
+            int index = Int32.Parse(order);
             int[,] A = new int[10, 10] {
                                     { 0, 1, 0, 1, 0, 0, 0, 0, 0, 0 },
                                     { 1, 0, 1, 0, 1, 1, 0, 0, 0, 0 },
@@ -35,6 +36,8 @@ namespace BFS_visualization
                                     { 0, 0, 0, 0, 0, 0, 0, 1, 0, 1 },
                                     { 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 }
             };
+
+            List<Point> points = listpoints[index];
 
             pnlGraph1.Controls.Clear();
             pnlGraph1.Refresh();
@@ -73,22 +76,39 @@ namespace BFS_visualization
 
         private void btnImportMatrix_Click(object sender, EventArgs e)
         {
-
-            DrawTree("");
+            DrawTree("0");
         }
 
         void initializePoints()
         {
-            points.Add(new Point(226, 36));
-            points.Add(new Point(412, 83));
-            points.Add(new Point(536, 201));
-            points.Add(new Point(72, 63));
-            points.Add(new Point(211, 176));
-            points.Add(new Point(336, 238));
-            points.Add(new Point(462, 362));
-            points.Add(new Point(271, 428));
-            points.Add(new Point(115, 346));
-            points.Add(new Point(95, 217));
+            List<Point> point0 = new List<Point>
+            {
+                new Point(226, 36),
+                new Point(412, 83),
+                new Point(536, 201),
+                new Point(72, 63),
+                new Point(211, 176),
+                new Point(336, 238),
+                new Point(462, 362),
+                new Point(271, 428),
+                new Point(115, 346),
+                new Point(95, 217)
+            };
+            listpoints.Add(point0);
+            List<Point> point1 = new List<Point>
+            {
+                new Point(36, 258),
+                new Point(95, 362),
+                new Point(111, 150),
+                new Point(281, 454),
+                new Point(281, 316),
+                new Point(281, 182),
+                new Point(281, 46),
+                new Point(445, 316),
+                new Point(445, 182),
+                new Point(586, 260)
+            };
+            listpoints.Add(point1);
         }
     }
 }
