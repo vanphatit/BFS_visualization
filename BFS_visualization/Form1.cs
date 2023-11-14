@@ -14,7 +14,104 @@ namespace BFS_visualization
     {
         List<Button> buttons = new List<Button>();
         public List<Point> points = new List<Point>();
-       
+
+        int[,] A = new int[10, 10] {
+                        { 0, 1, 0, 1, 0, 0, 0, 0, 0, 0 },
+                        { 1, 0, 1, 0, 1, 1, 0, 0, 0, 0 },
+                        { 0, 1, 0, 0, 0, 0, 1, 0, 0, 0 },
+                        { 1, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
+                        { 0, 1, 0, 1, 0, 0, 0, 0, 0, 1 },
+                        { 0, 1, 0, 0, 0, 0, 1, 0, 0, 1 },
+                        { 0, 0, 1, 0, 0, 1, 0, 1, 0, 0 },
+                        { 0, 0, 0, 0, 0, 0, 1, 0, 1, 0 },
+                        { 0, 0, 0, 0, 0, 0, 0, 1, 0, 1 },
+                        { 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 }
+                        };
+
+        // BFS 
+        public int[] chuaXet = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+        void InitQ(ref Queue<int> Q)
+        {
+            Q.FL = null;
+            Q.LL = null;
+        }
+
+        public int pushQ(ref Queue<int> Q, int x)
+        {
+            Node<int> p = new Node<int>(x);
+            if (p == null) return 0;
+            if (Q.FL == null)
+            {
+                p.value = x;
+                p.pointer = Q.FL;
+                Q.FL = p;
+                Q.LL = p;
+            }
+            else
+            {
+                p.value = x;
+                p.pointer = null;
+                Q.LL.pointer = p;
+                Q.LL = p;
+            }
+            return 1;
+        }
+
+        public void RemoveNode(Queue<int> Q)
+        {
+            if (Q.FL != null)
+            {
+                Node<int> removedNode = Q.FL;
+                Q.FL = removedNode.pointer;
+
+                if (Q.FL == null)
+                {
+                    Q.LL = null;
+                }
+            }
+        }
+
+        public int popQ(ref Queue<int> Q, out int x)
+        {
+            Node<int> p;
+            p = Q.FL;
+            if (p != null)
+            {
+                x = p.value;
+                Q.FL = p.pointer;
+                if (Q.FL == null) Q.LL = null;
+
+                return 1;
+            }
+            x = 0;
+            return 0;
+        }
+
+        public void TreeBFS(int r)
+        {
+            Queue<int> Q = new Queue<int>();
+            int v;
+            InitQ(ref Q);
+            pushQ(ref Q, r);
+            chuaXet[r] = 0;
+            while (Q.FL != null)
+            {
+                popQ(ref Q, out v);
+                for (int i = 0; i < 10; i++)
+                    if (A[i, v] == 1)
+                        if (chuaXet[i] == 1)
+                        {
+                            pushQ(ref Q, i);
+                            chuaXet[i] = 0;
+                            Graphics gra = this.pnlGraph1.CreateGraphics();
+                            Pen pen = new Pen(Color.Yellow, 5);
+                            gra.DrawLine(pen, new Point(points[v].X + 30 / 2, points[v].Y + 30 / 2),
+                                            new Point(points[i].X + 30 / 2, points[i].Y + 30 / 2));
+                        }
+            }
+        }
+        // BFS
+
         public Form1()
         {
             InitializeComponent();
@@ -23,19 +120,6 @@ namespace BFS_visualization
 
         void DrawTree(string order)
         {
-            int[,] A = new int[10, 10] {
-                                    { 0, 1, 0, 1, 0, 0, 0, 0, 0, 0 },
-                                    { 1, 0, 1, 0, 1, 1, 0, 0, 0, 0 },
-                                    { 0, 1, 0, 0, 0, 0, 1, 0, 0, 0 },
-                                    { 1, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
-                                    { 0, 1, 0, 1, 0, 0, 0, 0, 0, 1 },
-                                    { 0, 1, 0, 0, 0, 0, 1, 0, 0, 1 },
-                                    { 0, 0, 1, 0, 0, 1, 0, 1, 0, 0 },
-                                    { 0, 0, 0, 0, 0, 0, 1, 0, 1, 0 },
-                                    { 0, 0, 0, 0, 0, 0, 0, 1, 0, 1 },
-                                    { 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 }
-            };
-
             pnlGraph1.Controls.Clear();
             pnlGraph1.Refresh();
             Graphics gra = this.pnlGraph1.CreateGraphics();
@@ -60,10 +144,12 @@ namespace BFS_visualization
                     }
                 }
         }
-
+      
         private void btnDrawSpaningTree_Click(object sender, EventArgs e)
         {
-            string root = cbStartNode.SelectedValue.ToString();
+            //string root = cbStartNode.SelectedValue.ToString();
+            //int r = Int32.Parse(root);
+            TreeBFS(0);
         }
 
         private void cbMatrixOrder_SelectedValueChanged(object sender, EventArgs e)
