@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Threading;
 
 namespace BFS_visualization
 {
@@ -21,19 +22,7 @@ namespace BFS_visualization
         bool isChanged = false;
         int root;
         int[,] A = new int[10, 10];
-        //int[,] A = new int[10, 10] {
-        //                { 0, 1, 0, 1, 0, 0, 0, 0, 0, 0 },
-        //                { 1, 0, 1, 0, 1, 1, 0, 0, 0, 0 },
-        //                { 0, 1, 0, 0, 0, 0, 1, 0, 0, 0 },
-        //                { 1, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
-        //                { 0, 1, 0, 1, 0, 0, 0, 0, 0, 1 },
-        //                { 0, 1, 0, 0, 0, 0, 1, 0, 0, 1 },
-        //                { 0, 0, 1, 0, 0, 1, 0, 1, 0, 0 },
-        //                { 0, 0, 0, 0, 0, 0, 1, 0, 1, 0 },
-        //                { 0, 0, 0, 0, 0, 0, 0, 1, 0, 1 },
-        //                { 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 }
-        //                };
-
+        
         public Form1()
         {
             InitializeComponent();
@@ -41,6 +30,7 @@ namespace BFS_visualization
             cbMatrixOrder.Enabled = false;
             cbStartNode.Enabled = false;
             btnDrawSpaningTree.Enabled = false;
+            btnDrawSlowly.Enabled = false;
             if (!isChanged)
                 points = listpoints[0];
         }
@@ -104,7 +94,7 @@ namespace BFS_visualization
             return 0;
         }
 
-        public void TreeBFS(int r)
+        public void TreeBFS(int r, bool isSlow)
         {
             Graphics gra = this.pnlGraph1.CreateGraphics();
             Pen pen = new Pen(Color.Red, 3);
@@ -132,8 +122,12 @@ namespace BFS_visualization
                             pushQ(ref Q, i);
                             chuaXet[i] = 0;
                             Pen pen10 = new Pen(Color.Yellow, 3);
-                            gra.DrawLine(pen10, new Point(points[v].X + 30 / 2, points[v].Y + 30 / 2),
-                                            new Point(points[i].X + 30 / 2, points[i].Y + 30 / 2));
+                                gra.DrawLine(pen10, new Point(points[v].X + 30 / 2, points[v].Y + 30 / 2),
+                                                new Point(points[i].X + 30 / 2, points[i].Y + 30 / 2));
+                            if (isSlow)
+                            {
+                                Thread.Sleep(500);
+                            }
                         }
             }
         }
@@ -172,11 +166,18 @@ namespace BFS_visualization
 
         private void btnDrawSpaningTree_Click(object sender, EventArgs e)
         {
-            for (int i = 0; i < 10; i++)
+            if(cbStartNode.SelectedItem  != null && cbMatrixOrder.SelectedItem != null)
             {
-                chuaXet[i] = 1;
+                for (int i = 0; i < 10; i++)
+                {
+                    chuaXet[i] = 1;
+                }
+                TreeBFS(root, false);
             }
-            TreeBFS(root);
+            else
+            {
+                MessageBox.Show("Please choose start node!!!!");
+            }
         }
 
         private void cbMatrixOrder_SelectedValueChanged(object sender, EventArgs e)
@@ -227,11 +228,11 @@ namespace BFS_visualization
                 }
             }
 
-            MessageBox.Show("Nhập ma trận thành công!!");
+            MessageBox.Show("Import matrix completed!!");
             cbMatrixOrder.Enabled = true;
             cbStartNode.Enabled = true;
             btnDrawSpaningTree.Enabled = true;
-            DrawTree();
+            btnDrawSlowly.Enabled = true;
         }
 
         void initializePoints()
@@ -376,6 +377,23 @@ namespace BFS_visualization
                 new Point(381, 453)
             };
             listpoints.Add(point9);
+        }
+
+        private void btnDrawSlowly_Click(object sender, EventArgs e)
+        {
+            if (cbStartNode.SelectedItem != null && cbMatrixOrder.SelectedItem != null)
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    chuaXet[i] = 1;
+                }
+                TreeBFS(root, true);
+                MessageBox.Show("Done!");
+            }
+            else
+            {
+                MessageBox.Show("Please choose start node!!!!");
+            }
         }
     }
 }
