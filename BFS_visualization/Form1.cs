@@ -3,42 +3,49 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace BFS_visualization
 {
     public partial class Form1 : Form
     {
         List<Button> buttons = new List<Button>();
+        List<int[,]> matrixs = new List<int[,]>();
         public List<List<Point>> listpoints = new List<List<Point>>();
         public List<Point> points;
         bool isChanged = false;
         int root;
-        int[,] A = new int[10, 10] {
-                        { 0, 1, 0, 1, 0, 0, 0, 0, 0, 0 },
-                        { 1, 0, 1, 0, 1, 1, 0, 0, 0, 0 },
-                        { 0, 1, 0, 0, 0, 0, 1, 0, 0, 0 },
-                        { 1, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
-                        { 0, 1, 0, 1, 0, 0, 0, 0, 0, 1 },
-                        { 0, 1, 0, 0, 0, 0, 1, 0, 0, 1 },
-                        { 0, 0, 1, 0, 0, 1, 0, 1, 0, 0 },
-                        { 0, 0, 0, 0, 0, 0, 1, 0, 1, 0 },
-                        { 0, 0, 0, 0, 0, 0, 0, 1, 0, 1 },
-                        { 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 }
-                        };
+        int[,] A = new int[10, 10];
+        //int[,] A = new int[10, 10] {
+        //                { 0, 1, 0, 1, 0, 0, 0, 0, 0, 0 },
+        //                { 1, 0, 1, 0, 1, 1, 0, 0, 0, 0 },
+        //                { 0, 1, 0, 0, 0, 0, 1, 0, 0, 0 },
+        //                { 1, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
+        //                { 0, 1, 0, 1, 0, 0, 0, 0, 0, 1 },
+        //                { 0, 1, 0, 0, 0, 0, 1, 0, 0, 1 },
+        //                { 0, 0, 1, 0, 0, 1, 0, 1, 0, 0 },
+        //                { 0, 0, 0, 0, 0, 0, 1, 0, 1, 0 },
+        //                { 0, 0, 0, 0, 0, 0, 0, 1, 0, 1 },
+        //                { 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 }
+        //                };
 
         public Form1()
         {
             InitializeComponent();
             initializePoints();
-            if(!isChanged)
+            cbMatrixOrder.Enabled = false;
+            cbStartNode.Enabled = false;
+            btnDrawSpaningTree.Enabled = false;
+            if (!isChanged)
                 points = listpoints[0];
         }
 
-        // BFS 
+        #region BFS 
         public int[] chuaXet = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         void InitQ(ref Queue<int> Q)
         {
@@ -130,7 +137,7 @@ namespace BFS_visualization
                         }
             }
         }
-        // BFS
+        #endregion
 
         void DrawTree()
         {
@@ -138,7 +145,6 @@ namespace BFS_visualization
             pnlGraph1.Refresh();
             Graphics gra = this.pnlGraph1.CreateGraphics();
             Pen pen = new Pen(Color.Red, 3);
-            Random random = new Random();
             for (int i = 0; i < 10; i++)
             {
                 Button btn = new Button();
@@ -151,9 +157,9 @@ namespace BFS_visualization
             for (int i = 0; i < 10; i++)
                 for (int j = 0; j < 10; j++)
                 {
-                    if (A[i,j] == 1)
+                    if (A[i, j] == 1)
                     {
-                        gra.DrawLine(pen, new Point(points[i].X + 30 / 2, points[i].Y + 30 / 2), 
+                        gra.DrawLine(pen, new Point(points[i].X + 30 / 2, points[i].Y + 30 / 2),
                                             new Point(points[j].X + 30 / 2, points[j].Y + 30 / 2));
                     }
                 }
@@ -178,11 +184,53 @@ namespace BFS_visualization
             isChanged = true;
             int order = Int32.Parse(cbMatrixOrder.SelectedItem.ToString());
             points = listpoints[order];
+            A = matrixs[order];
             DrawTree();
         }
 
         private void btnImportMatrix_Click(object sender, EventArgs e)
         {
+            string[] lines = File.ReadAllLines("Matran.txt");
+
+            int[,] currentMatrix = new int[10, 10];
+            int i = 0, j = 0;
+
+            foreach (string line in lines)
+            {
+                foreach (char item in line)
+                {
+                    if (item == '0' || item == '1')
+                    {
+                        currentMatrix[i, j] = int.Parse(item.ToString());
+                        j++;
+
+                        if (j == 10)
+                        {
+                            i++;
+                            j = 0;
+                        }
+
+                    }
+
+                    // Xử lí khi gặp kí tự lạ
+                    else if (!char.IsWhiteSpace(item))
+                    {
+                        throw new FormatException($"Invalid character '{item}' in the file.");
+                    }
+                }
+
+                if (i == 10)
+                {
+                    matrixs.Add(currentMatrix);
+                    currentMatrix = new int[10, 10];
+                    i = 0;
+                }
+            }
+
+            MessageBox.Show("Nhập ma trận thành công!");
+            cbMatrixOrder.Enabled = true;
+            cbStartNode.Enabled = true;
+            btnDrawSpaningTree.Enabled = true;
             DrawTree();
         }
 
@@ -216,6 +264,118 @@ namespace BFS_visualization
                 new Point(586, 260)
             };
             listpoints.Add(point1);
+            List<Point> point2 = new List<Point>
+            {
+                new Point(111, 33),
+                new Point(351, 33),
+                new Point(445, 139),
+                new Point(313, 139),
+                new Point(160, 150),
+                new Point(29, 153),
+                new Point(258, 277),
+                new Point(497, 277),
+                new Point(313, 413),
+                new Point(101, 469)
+            };
+            listpoints.Add(point2);
+            List<Point> point3 = new List<Point>
+            {
+                new Point(267, 48),
+                new Point(566, 48),
+                new Point(566, 218),
+                new Point(267, 218),
+                new Point(42, 375),
+                new Point(42, 202),
+                new Point(411, 375),
+                new Point(331, 297),
+                new Point(411, 133),
+                new Point(162, 228)
+            };
+            listpoints.Add(point3);
+            List<Point> point4 = new List<Point>
+            {
+                new Point(111, 33),
+                new Point(410, 33),
+                new Point(157, 156),
+                new Point(292, 156),
+                new Point(292, 277),
+                new Point(157, 277),
+                new Point(525, 171),
+                new Point(487, 319),
+                new Point(344, 423),
+                new Point(68, 423)
+            };
+            listpoints.Add(point4);
+            List<Point> point5 = new List<Point>
+            {
+                new Point(208, 205),
+                new Point(356, 205),
+                new Point(356, 319),
+                new Point(208, 319),
+                new Point(81, 264),
+                new Point(479, 264),
+                new Point(286, 102),
+                new Point(286, 425),
+                new Point(449, 399),
+                new Point(286, 264)
+            };
+            listpoints.Add(point5);
+            List<Point> point6 = new List<Point>
+            {
+                new Point(62, 153),
+                new Point(207, 23),
+                new Point(356, 153),
+                new Point(207, 156),
+                new Point(62, 315),
+                new Point(207, 315),
+                new Point(356, 315),
+                new Point(133, 237),
+                new Point(283, 237),
+                new Point(207, 441)
+            };
+            listpoints.Add(point6);
+            List<Point> point7 = new List<Point>
+            {
+                new Point(51, 69),
+                new Point(51, 182),
+                new Point(51, 292),
+                new Point(51, 402),
+                new Point(172, 182),
+                new Point(172, 292),
+                new Point(299, 113),
+                new Point(299, 239),
+                new Point(299, 355),
+                new Point(466, 239)
+            };
+            listpoints.Add(point7);
+            List<Point> point8 = new List<Point>
+            {
+                new Point(51, 69),
+                new Point(172, 69),
+                new Point(51, 182),
+                new Point(51, 292),
+                new Point(154, 405),
+                new Point(326, 350),
+                new Point(172, 239),
+                new Point(299, 239),
+                new Point(299, 121),
+                new Point(459, 228)
+            };
+            listpoints.Add(point8);
+            List<Point> point9 = new List<Point>
+            {
+                new Point(102, 42),
+                new Point(299, 111),
+                new Point(166, 205),
+                new Point(411, 205),
+                new Point(50, 309),
+                new Point(530, 309),
+                new Point(190, 319),
+                new Point(392, 319),
+                new Point(205, 453),
+                new Point(381, 453)
+            };
+            listpoints.Add(point9);
         }
     }
 }
