@@ -3,32 +3,36 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace BFS_visualization
 {
     public partial class Form1 : Form
     {
         List<Button> buttons = new List<Button>();
+        List<int[,]> matrixs = new List<int[,]>();
         public List<List<Point>> listpoints = new List<List<Point>>();
         public List<Point> points;
         bool isChanged = false;
         int root;
-        int[,] A = new int[10, 10] {
-                        { 0, 1, 0, 1, 0, 0, 0, 0, 0, 0 },
-                        { 1, 0, 1, 0, 1, 1, 0, 0, 0, 0 },
-                        { 0, 1, 0, 0, 0, 0, 1, 0, 0, 0 },
-                        { 1, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
-                        { 0, 1, 0, 1, 0, 0, 0, 0, 0, 1 },
-                        { 0, 1, 0, 0, 0, 0, 1, 0, 0, 1 },
-                        { 0, 0, 1, 0, 0, 1, 0, 1, 0, 0 },
-                        { 0, 0, 0, 0, 0, 0, 1, 0, 1, 0 },
-                        { 0, 0, 0, 0, 0, 0, 0, 1, 0, 1 },
-                        { 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 }
-                        };
+        int[,] A = new int[10, 10];
+        //int[,] A = new int[10, 10] {
+        //                { 0, 1, 0, 1, 0, 0, 0, 0, 0, 0 },
+        //                { 1, 0, 1, 0, 1, 1, 0, 0, 0, 0 },
+        //                { 0, 1, 0, 0, 0, 0, 1, 0, 0, 0 },
+        //                { 1, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
+        //                { 0, 1, 0, 1, 0, 0, 0, 0, 0, 1 },
+        //                { 0, 1, 0, 0, 0, 0, 1, 0, 0, 1 },
+        //                { 0, 0, 1, 0, 0, 1, 0, 1, 0, 0 },
+        //                { 0, 0, 0, 0, 0, 0, 1, 0, 1, 0 },
+        //                { 0, 0, 0, 0, 0, 0, 0, 1, 0, 1 },
+        //                { 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 }
+        //                };
 
         public Form1()
         {
@@ -178,11 +182,41 @@ namespace BFS_visualization
             isChanged = true;
             int order = Int32.Parse(cbMatrixOrder.SelectedItem.ToString());
             points = listpoints[order];
+            A = matrixs[order];
             DrawTree();
         }
 
         private void btnImportMatrix_Click(object sender, EventArgs e)
         {
+            string[] a = File.ReadAllLines("Matran.txt");
+            int[,] b = new int[10, 10];
+            int i = 0, j = 0;
+
+            foreach (string s in a)
+            {
+                foreach (var item in s)
+                {
+                    if (item == '0' || item == '1')
+                    {
+                        b[i, j] = Int32.Parse(item.ToString());
+                        j++;
+
+                        if (j == 10)
+                        {
+                            i++;
+                            j = 0;
+                        }
+                        
+                    }
+                    if (i == 10)
+                    {
+                        matrixs.Add(b);
+                        i = 0;
+                    }
+                }
+                
+            }
+
             DrawTree();
         }
 
