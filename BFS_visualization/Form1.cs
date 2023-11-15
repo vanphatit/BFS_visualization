@@ -280,16 +280,16 @@ namespace BFS_visualization
             listpoints.Add(point2);
             List<Point> point3 = new List<Point>
             {
-                new Point(267, 48),
-                new Point(566, 48),
-                new Point(566, 218),
-                new Point(267, 218),
-                new Point(42, 375),
-                new Point(42, 202),
-                new Point(411, 375),
-                new Point(331, 297),
-                new Point(411, 133),
-                new Point(162, 228)
+                new Point(16, 277),
+                new Point(125, 133),
+                new Point(125, 429),
+                new Point(188, 277),
+                new Point(244, 394),
+                new Point(244, 172),
+                new Point(310, 277),
+                new Point(472, 277),
+                new Point(370, 411),
+                new Point(370, 156)
             };
             listpoints.Add(point3);
             List<Point> point4 = new List<Point>
