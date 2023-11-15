@@ -227,7 +227,7 @@ namespace BFS_visualization
                 }
             }
 
-            MessageBox.Show("Nhập ma trận thành công!");
+            MessageBox.Show("Nhập ma trận thành công!!");
             cbMatrixOrder.Enabled = true;
             cbStartNode.Enabled = true;
             btnDrawSpaningTree.Enabled = true;
