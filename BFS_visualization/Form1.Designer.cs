@@ -136,7 +136,7 @@
             this.btnDrawSpaningTree.Name = "btnDrawSpaningTree";
             this.btnDrawSpaningTree.Size = new System.Drawing.Size(91, 70);
             this.btnDrawSpaningTree.TabIndex = 8;
-            this.btnDrawSpaningTree.Text = "Draw";
+            this.btnDrawSpaningTree.Text = "Draw 1 step";
             this.btnDrawSpaningTree.UseVisualStyleBackColor = true;
             this.btnDrawSpaningTree.Click += new System.EventHandler(this.btnDrawSpaningTree_Click);
             // 
