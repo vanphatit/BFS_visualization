@@ -1,29 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Threading;
-using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
 
 namespace BFS_visualization
 {
     public partial class Form1 : Form
     {
-        List<Button> buttons = new List<Button>();
+        List<Button> buttons = new List<Button>(); 
         List<int[,]> matrixs = new List<int[,]>();
-        List<Point> lineStart, lineEnd;
+        List<Point> lineStart, lineEnd; //list of line start and end point
         public List<List<Point>> listpoints = new List<List<Point>>();
         public List<Point> points;
-        bool isChanged = false;
-        int index = -1;
+        bool isChanged = false; //check if matrix is changed
+        int index = -1; //index of line start and end point
         int root;
         int[,] A = new int[10, 10];
         
@@ -35,7 +27,7 @@ namespace BFS_visualization
             cbStartNode.Enabled = false;
             btnDrawSpaningTree.Enabled = false;
             btnDrawSlowly.Enabled = false;
-            if (!isChanged)
+            if (!isChanged) //if matrix is not changed, use default matrix
                 points = listpoints[0];
         }
 
@@ -84,29 +76,15 @@ namespace BFS_visualization
             return 0;
         }
 
-        public void TreeBFS(int r, bool isSlow)
+        public void TreeBFS(int root)
         {
-            Graphics gra = this.pnlGraph1.CreateGraphics();
-            if (isSlow)
-            {
-                //Erase all pens written before
-                Pen pen = new Pen(Color.Red, 3);
-                for (int i = 0; i < 10; i++)
-                    for (int j = 0; j < 10; j++)
-                    {
-                        if (A[i, j] == 1)
-                        {
-                            gra.DrawLine(pen, new Point(points[i].X + 30 / 2, points[i].Y + 30 / 2),
-                                                new Point(points[j].X + 30 / 2, points[j].Y + 30 / 2));
-                        }
-                    }
-            }
-            
+            lineStart = new List<Point>();
+            lineEnd = new List<Point>();
             Queue<int> Q = new Queue<int>();
             int v;
             InitQ(ref Q);
-            pushQ(ref Q, r);
-            chuaXet[r] = 0;
+            pushQ(ref Q, root);
+            chuaXet[root] = 0;
             while (Q.FL != null)
             {
                 popQ(ref Q, out v);
@@ -116,13 +94,9 @@ namespace BFS_visualization
                         {
                             pushQ(ref Q, i);
                             chuaXet[i] = 0;
-                            Pen pen10 = new Pen(Color.Yellow, 3);
-                            gra.DrawLine(pen10, new Point(points[v].X + 30 / 2, points[v].Y + 30 / 2),
-                                                new Point(points[i].X + 30 / 2, points[i].Y + 30 / 2));
-                            if (isSlow)
-                            {
-                                Thread.Sleep(500);
-                            }
+                            //Use List<Point> to save line start and end point
+                            lineStart.Add(new Point(points[v].X + 30 / 2, points[v].Y + 30 / 2));
+                            lineEnd.Add(new Point(points[i].X + 30 / 2, points[i].Y + 30 / 2));
                         }
             }
         }
@@ -177,30 +151,12 @@ namespace BFS_visualization
 
         private void cbStartNode_SelectedValueChanged(object sender, EventArgs e)
         {
-            lineStart = new List<Point>();
-            lineEnd = new List<Point>();
             root = Int32.Parse(cbStartNode.SelectedItem.ToString());
-            Queue<int> Q = new Queue<int>();
-            int v;
-            InitQ(ref Q);
-            pushQ(ref Q, root);
-            chuaXet[root] = 0;
-            while (Q.FL != null)
-            {
-                popQ(ref Q, out v);
-                for (int i = 0; i < 10; i++)
-                    if (A[i, v] == 1)
-                        if (chuaXet[i] == 1)
-                        {
-                            pushQ(ref Q, i);
-                            chuaXet[i] = 0;
-                            lineStart.Add(new Point(points[v].X + 30 / 2, points[v].Y + 30 / 2));
-                            lineEnd.Add(new Point(points[i].X + 30 / 2, points[i].Y + 30 / 2));
-                        }
-            }
             resetPen();
+            TreeBFS(root);
         }
 
+        //Click to draw spanning tree step by step
         private void btnDrawSpaningTree_Click(object sender, EventArgs e)
         {
             if(cbStartNode.SelectedItem  != null && cbMatrixOrder.SelectedItem != null)
@@ -282,12 +238,17 @@ namespace BFS_visualization
         {
             if (cbStartNode.SelectedItem != null && cbMatrixOrder.SelectedItem != null)
             {
-                for (int i = 0; i < 10; i++)
+                resetPen();
+                TreeBFS(root);
+                Graphics gra = this.pnlGraph1.CreateGraphics();
+                for(int i = 0; i < 9; i++)
                 {
-                    chuaXet[i] = 1;
+                    Pen pen10 = new Pen(Color.Yellow, 3);
+                    gra.DrawLine(pen10, lineStart[i], lineEnd[i]);
+                    Thread.Sleep(500);
                 }
-                TreeBFS(root, true);
                 MessageBox.Show("Done!");
+
             }
             else
             {
